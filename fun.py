@@ -1,50 +1,102 @@
+from datetime import datetime
+
+
 class Account:
-    def __init__(self,account_number,account_name): 
-        self.account_name=account_name
+    def __init__(self,name,account_number):
         self.account_number=account_number
         self.balance=0
         self.deposits=[]
-        self.withraw=[]
-        self.transaction_fee=100
+        self.withdrawals=[]
+        self.transaction=100
+        self.loan_balance=0
+        
     
+    def withdraw (self,amount):
+        self.amount=amount
+        date=datetime.now()
+        if amount>self.balance:
+            return f"Dear customer, you have insuffient funds for this withdraw"
+        elif amount<=0:
+            return f"Dear customer, you can't withdraw zero amount "            
+        else:
+             self.balance -=amount
+             newdct={"date":date.strftime("%d/%m/%Y"),"amount":amount,"narration":f'thank you for withdrawing {amount} on {date}'}
+             self.withdrawals.append(newdct)
+             withdrawal_amount=self.balance-self.transaction
+        if amount>withdrawal_amount:
+             return "insufficient balance"
+        self.balance-=amount+self.transaction
+        return f"You have withdrawn Ugshs.{self.withdrawals} and your new balance is {self.balance} on {date.strftime('%d/%m/%Y')})"
+              
+      
     def deposit(self,amount):
+        date=datetime.now()
+        
+        self.amount=amount 
         if amount<=0:
-            return f"deposit must be positive"
+            return f"deposit amount must be greater than zero(0)"
         else:
-            self.balance+=amount
-            # return f"hello{self.account_name} you have deposited {amount} and your new balance is {self.balance}"
-            self.deposits.append(amount)
-        return f"Hello, {self.account_name} you have deposited {amount} ,new balance is {self.balance}"
-
-    def withraw(self,amount):
-        total=amount+transaction_fee
-        if amount<=0:
-           return f"withdraw must be greater than this"
-        elif amount>self.balance:
-            print(f"your balance is {self.balance},you can't withdraw {amount}")
-        else:
-            self.balance-=total
-            # return f"helo{self.account_name} you have withdrawn {amount} and your balance is {self.balance}"
-            self.withraw.append(amount)
-            return f"Hello, {self.account_name} you have deposited {amount} ,new balance is {self.balance}"
+             self.balance+=amount
+             dct={"date":date.strftime("%d/%m/%Y"),"amount":amount,"narration":f'thank you for depositing {amount} on {date}'}
+             self.deposits.append(dct)
+             
+        return f"You have deposited Ugshs.{amount} and your new balance is {self.balance})"
+    
+         
+    def deposit_statement(self):
+        for x in self.deposits:
+            print (x)
+    def withdraw_statement(self):
+        for y in self.withdrawals: 
+            print(y)
+         
+    def current_balance(self):
+        return f" Your current balance is  {self.balance}" 
+    
+    def full_statement(self):
+        statement=self.deposits+self.withdrawals
+        for a in statement:
+            print(a["narration"])    
+    def borrow(self,amount):
+        sum=0
+        for y in self.deposits:
+            sum+=y["amount"]
             
-    def deposits_statement(self):
-        for depo in self.deposits:
-            print(depo,end="\n")
-
-    def withraw_statement(self):
-        for man in self.deposits:
-            print(man,end="\n")
-
-    def bal(self):
-        print(f"your balance is {self.balance}")
-
-
-# Add a new attribute to the class Account called deposits which by default is an empty list.
-# Add another attribute to the class Account called withdrawals which by default is an empty list.
-# Modify the deposit method to append each successful deposit to self.deposits
-# Modify the withdrawal method to append each successful withdrawal to self.withdrawals
-# Add a new method called deposits_statement which using a for loop prints each deposit in a new line
-# Add a new method called withdrawals_statement which using a for loop prints each withdrawal in a new line
-# Modify the withdrawal method to include a transaction fee of 100 per transaction.
-# Add a method to show the current balance.
+        if len(self.deposits) <10:
+            return f"you are not eligible to borrow.make {10-len(self.deposits)} more deposits to borrow "
+        if amount<100:
+            return f"hello,you can borrow atleast above 100"  
+        if amount>sum/3:
+            return f"you can borrow upto {sum/3}" 
+        if self.balance!=0:
+            return f"you have Ugshs.{self.balance} you can't borrow yet you still have balance on your account"
+        if self.loan_balance!=0:
+            return f"you have a debt of {self.loan_balance} you have to pay first for you to borrow."
+        else:
+            interest= 3/100*(amount)
+            self.loan_balance+=amount+interest
+            return f"you have borrowed {amount} your loan is now at {self.loan_balance}"
+    
+    def loan_repayment(self,amount):
+        
+         if amount>self.loan_balance:
+             self.balance+=amount-self.loan_balance
+             self.loan_balance=0
+             return f" thank you for paying the loan of {amount-self.loan_balance} your account balance is {self.balance}"
+               
+         else:
+             self.loan_balance-=amount
+             return f"thank you and your loan balnce is {self.loan_balance}"
+            
+         
+    def transfer(self,amount,new_account):
+        if amount<=0:
+           return "invalid amount"
+        if amount>=self.balance:
+           return f"insuficient funds"
+        if isinstance(new_account,Account):
+            self.balance-=amount
+            new_account.balance+=amount
+            return f"you have sent {amount} to {new_account} with the name {new_account.name}.your new balance is {self.balance}"
+        
+             
